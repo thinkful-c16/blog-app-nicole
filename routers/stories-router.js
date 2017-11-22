@@ -6,15 +6,10 @@ const router = express.Router();
 var data = require('../db/dummy-data');
 
 const { DATABASE } = require('../config');
-const knex = require('knex')({
-  client: 'pg',
-  connection: {
-    database: 'blog-app'
-  }
-});
+const knex = require('knex')(DATABASE);
 
-const Treeize = require('treeize');
-const stories = new Treeize();
+// const Treeize = require('treeize');
+// const stories = new Treeize();
 
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/stories', (req, res) => {
@@ -24,28 +19,24 @@ router.get('/stories', (req, res) => {
   // } else {
   //   res.json(data);
   // }
-  knex.select('id', 'title', 'content')
-  .from('stories')
-  .limit(10)
-  // .then(results => res.json(results));
-  .then(results => {
-    stories.grow(results);
-    console.log(JSON.stringify(stories, null, 2));
-  })
+  knex('stories')
+    .select()
+    .then(results => {
+      res.json(results);
+    })
+    .catch(err => console.log(err));
 });
 
 /* ========== GET/READ SINGLE ITEMS ========== */
 router.get('/stories/:id', (req, res) => {
-  // const id = Number(req.params.id);
-  // const item = data.find((obj) => obj.id === id);
-  // res.json(item);
-  knex.select('stories.id', 'title', 'content')
-  .from('stories')
-  // .then(results => res.json(results));
-  .then(results => {
-    stories.grow(results);
-    console.log(JSON.stringify(stories, null, 2));
+  knex('stories')
+    .select()
+    .then(results => {
+      const id = Number(req.params.id);
+      const item = results.find((obj) => obj.id === id);
+      res.json(item);
   })
+  .catch(err => console.log(err));
 });
 
 /* ========== POST/CREATE ITEM ========== */
@@ -56,8 +47,8 @@ router.post('/stories', (req, res) => {
   
   const newItem = {
     id: data.nextVal++,
-    title: title,
-    content: content
+    title: `${req.title}`,
+    content: `${req.content}`
   };
 
   knex.insert(newItem).into('stories');

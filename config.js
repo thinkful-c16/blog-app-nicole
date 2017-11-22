@@ -9,6 +9,6 @@ exports.DATABASE = {
     connection: DATABASE_URL,
     pool: {min: 0, max: 3}, // Fixes issue with Elephant SQL 
     debug: true //outputs knex debugging information
-}
+};
 
 exports.PORT = process.env.PORT || 8080; 
