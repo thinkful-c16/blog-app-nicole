@@ -1,7 +1,7 @@
 'use strict';
 
 const DATABASE_URL = process.env.DATABASE_URL
-|| globa.DATABASE_URL
+|| global.DATABASE_URL
 || 'postgresql://localhost/blog-app' //need to have the right URL in place
 
 exports.DATABASE = {
