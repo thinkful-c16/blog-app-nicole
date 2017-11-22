@@ -8,17 +8,9 @@ var data = require('../db/dummy-data');
 const { DATABASE } = require('../config');
 const knex = require('knex')(DATABASE);
 
-// const Treeize = require('treeize');
-// const stories = new Treeize();
-
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/stories', (req, res) => {
-  // if (req.query.search) {
-  //   const filtered = data.filter((obj) => obj.title.includes(req.query.search));
-  //   res.json(filtered);
-  // } else {
-  //   res.json(data);
-  // }
+
   knex('stories')
     .select()
     .then(results => {
@@ -52,9 +44,10 @@ router.post('/stories', (req, res) => {
   knex
     .insert(newItem)
     .into('stories')
-    .then(results => {
+    .then(result => {
       res.json(result).status(201);
-    });
+    })
+    .catch(err => console.log(err));
 });
 
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
@@ -64,17 +57,30 @@ router.put('/stories/:id', (req, res) => {
   /***** Never Trust Users! *****/
   
   const id = Number(req.params.id);
-  const item = data.find((obj) => obj.id === id);
-  Object.assign(item, {title, content});
-  res.json(item);
+
+  knex('stories')
+    .select()
+    .where('id', id)
+    .update({
+      title, 
+      content
+    })
+    .then(result => {
+      res.json(result);
+    })
+    .catch(err => console.log(err));
 });
 
 /* ========== DELETE/REMOVE A SINGLE ITEM ========== */
 router.delete('/stories/:id', (req, res) => {
   const id = Number(req.params.id);
-  const index = data.findIndex((obj) => obj.id === id);
-  data.splice(index, 1);
-  res.status(204).end();
+
+  knex('stories')
+    .where('id', id)
+    .del()
+    .then(result => {
+      res.json(result);
+    });
 });
 
 module.exports = router;
