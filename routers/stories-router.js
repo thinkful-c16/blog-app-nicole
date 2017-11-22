@@ -5,39 +5,59 @@ const router = express.Router();
 
 var data = require('../db/dummy-data');
 
-// const { DATABASE } = require('../config');
-// const knex = require('knex')(DATABASE);
+const { DATABASE } = require('../config');
+const knex = require('knex')(DATABASE);
+
+const Treeize = require('treeize');
+const stories = new Treeize();
 
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/stories', (req, res) => {
-  if (req.query.search) {
-    const filtered = data.filter((obj) => obj.title.includes(req.query.search));
-    res.json(filtered);
-  } else {
-    res.json(data);
-  }
+  // if (req.query.search) {
+  //   const filtered = data.filter((obj) => obj.title.includes(req.query.search));
+  //   res.json(filtered);
+  // } else {
+  //   res.json(data);
+  // }
+  knex.select('id', 'title', 'content')
+  .from('stories')
+  .limit(10)
+  // .then(results => res.json(results));
+  .then(results => {
+    stories.grow(results);
+    console.log(JSON.stringify(stories, null, 2));
+  })
 });
 
 /* ========== GET/READ SINGLE ITEMS ========== */
 router.get('/stories/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const item = data.find((obj) => obj.id === id);
-  res.json(item);
+  // const id = Number(req.params.id);
+  // const item = data.find((obj) => obj.id === id);
+  // res.json(item);
+  knex.select('stories.id', 'title', 'content')
+  .from('stories')
+  // .then(results => res.json(results));
+  .then(results => {
+    stories.grow(results);
+    console.log(JSON.stringify(stories, null, 2));
+  })
 });
 
 /* ========== POST/CREATE ITEM ========== */
-router.post('/stories', (req, res) => {
+router.post('/stories', (req, res) => {  
   const {title, content} = req.body;
   
-  /***** Never Trust Users! *****/
+  // /***** Never Trust Users! *****/
   
   const newItem = {
     id: data.nextVal++,
     title: title,
     content: content
   };
-  data.push(newItem);
-  res.location(`${req.originalUrl}/${newItem.id}`).status(201).json(newItem);
+
+  knex.insert(newItem).into('stories');
+  // data.push(newItem);
+  // res.location(`${req.originalUrl}/${newItem.id}`).status(201).json(newItem);
 });
 
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
