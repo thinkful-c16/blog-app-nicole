@@ -46,14 +46,15 @@ router.post('/stories', (req, res) => {
   // /***** Never Trust Users! *****/
   
   const newItem = {
-    id: data.nextVal++,
-    title: `${req.title}`,
-    content: `${req.content}`
+    title, content
   };
 
-  knex.insert(newItem).into('stories');
-  // data.push(newItem);
-  // res.location(`${req.originalUrl}/${newItem.id}`).status(201).json(newItem);
+  knex
+    .insert(newItem)
+    .into('stories')
+    .then(results => {
+      res.json(result).status(201);
+    });
 });
 
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
